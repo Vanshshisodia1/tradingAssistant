@@ -1,51 +1,26 @@
-# tradingAssistant
-This trading assistant provides stock recommendations using Yahoo Finance data. It combines three technical indicators—Moving Average Crossover, RSI, and MACD—to assess market momentum and guide trade decisions without automating transactions.
-import yfinance as yf
-import pandas as pd
-import numpy as np
+Here’s a description of our project, along with essential details:
 
-# Fetch historical data
-def get_historical_data(symbol, start="2024-01-01", end="2024-10-30", interval="1d"):
-    stock_data = yf.download(symbol, start=start, end=end, interval=interval)
-    return stock_data
+### Project Title
+**Trading Assistant for Stock Recommendations**
 
-# Strategy calculations
-def calculate_signals(data):
-    # Moving Average Crossover
-    data['SMA_short'] = data['Close'].rolling(window=20).mean()
-    data['SMA_long'] = data['Close'].rolling(window=50).mean()
-    data['MA_Signal'] = np.where(data['SMA_short'] > data['SMA_long'], "buy", "sell")
+### Description
+This project is a trading assistant tool that provides stock recommendations ("buy," "sell," or "hold") based on technical indicators using Yahoo Finance data. It assists users by analyzing historical data and identifying trade signals without automating trades.
 
-    # RSI Calculation
-    delta = data['Close'].diff(1)
-    gain = delta.where(delta > 0, 0).rolling(window=14).mean()
-    loss = -delta.where(delta < 0, 0).rolling(window=14).mean()
-    rs = gain / loss
-    data['RSI'] = 100 - (100 / (1 + rs))
-    data['RSI_Signal'] = np.where(data['RSI'] < 30, "buy", np.where(data['RSI'] > 70, "sell", "hold"))
+### Key Features
+- **Data Source**: Yahoo Finance via `yfinance` API.
+- **Indicators Used**:
+  - **Moving Average Crossover**: Detects trends with 20-day and 50-day SMAs.
+  - **RSI (Relative Strength Index)**: Identifies overbought and oversold conditions.
+  - **MACD (Moving Average Convergence Divergence)**: Confirms momentum and trend shifts.
+- **Final Recommendation**: Combines all indicators to suggest trade action.
+  
+### Usage
+1. Users can select a stock by ticker symbol (e.g., `RELIANCE.NS`).
+2. The program calculates indicators based on historical price data.
+3. It outputs a recommendation to assist in making trade decisions.
 
-    # MACD Calculation
-    data['EMA_short'] = data['Close'].ewm(span=12, adjust=False).mean()
-    data['EMA_long'] = data['Close'].ewm(span=26, adjust=False).mean()
-    data['MACD'] = data['EMA_short'] - data['EMA_long']
-    data['Signal_line'] = data['MACD'].ewm(span=9, adjust=False).mean()
-    data['MACD_Signal'] = np.where(data['MACD'] > data['Signal_line'], "buy", "sell")
+### Installation Requirements
+- Python libraries: `yfinance`, `pandas`, and `numpy`
 
-    # Final recommendation
-    data['Buy_Score'] = (data['MA_Signal'] == "buy").astype(int) + \
-                        (data['RSI_Signal'] == "buy").astype(int) + \
-                        (data['MACD_Signal'] == "buy").astype(int)
-    data['Sell_Score'] = (data['MA_Signal'] == "sell").astype(int) + \
-                         (data['RSI_Signal'] == "sell").astype(int) + \
-                         (data['MACD_Signal'] == "sell").astype(int)
-
-    data['Recommendation'] = np.where(data['Buy_Score'] > data['Sell_Score'], "buy",
-                                      np.where(data['Sell_Score'] > data['Buy_Score'], "sell", "hold"))
-    return data
-
-# Trying this
-data = get_historical_data("NIFTYBEES.NS")  
-data = calculate_signals(data)
-
-# final recommendation
-print(data[['SMA_short', 'SMA_long', 'RSI', 'MACD', 'Signal_line', 'MA_Signal', 'RSI_Signal', 'MACD_Signal', 'Recommendation']].tail())
+### How It Works
+The assistant uses daily historical data to compute SMAs, RSI, and MACD for selected stocks. Each indicator generates a signal ("buy" or "sell"), and the final recommendation is based on the majority signal from these strategies.
