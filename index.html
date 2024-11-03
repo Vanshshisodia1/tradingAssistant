@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Trading Assistant</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Stock Trading Assistant</h1>
+            <p>Analyze stocks using moving averages, RSI, and MACD signals.</p>
+        </div>
+
+        <form class="form" method="POST">
+            <div class="form-group">
+                <label for="symbol">Stock Symbol</label>
+                <input type="text" id="symbol" name="symbol" placeholder="Enter Stock Symbol (e.g., NIFTYBEES.NS)" required>
+            </div>
+
+            <div class="form-group">
+                <label for="start_date">Start Date</label>
+                <input type="date" id="start_date" name="start_date" required>
+            </div>
+
+            <div class="form-group">
+                <label for="end_date">End Date</label>
+                <input type="date" id="end_date" name="end_date" required>
+            </div>
+
+            <button type="submit" class="submit-btn">Analyze</button>
+        </form>
+
+        {% if result %}
+            <div class="result-container">
+                <h2>Analysis Results for {{ symbol }}</h2>
+                <div class="table-container">{{ result|safe }}</div>
+            </div>
+        {% elif error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+    </div>
+</body>
+</html>
